@@ -30,13 +30,19 @@ for theme in output_themes:
         if output_mode == '4' or output_mode == '3' or output_mode == '2':
             random.shuffle(output_questions)
         
+        question_num = 1
+
         for question, answer in output_questions:
-            print('{text_color}\nВопрос: {question}\033[0m'.format(text_color='\033[36m', question=question))
+            print('{text_color}\nВопрос {num}: {question}\033[0m'.format(
+                text_color='\033[36m', num=question_num, question=question
+            ))
 
             if answer:
                 input('\nНажмите Enter, чтобы узнать ответ на вопрос.')
                 print('{text_color}\nОтвет: {answer}\033[0m'.format(text_color='\033[32m', answer=answer))
             
             input('\nНажмите Enter, чтобы перейти к следующему вопросу.')
+
+            question_num += 1
 
 print('\nВопросы закончились, работа программы завершена.')

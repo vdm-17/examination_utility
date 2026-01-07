@@ -17,7 +17,7 @@ def get_questions():
         if not path.name.endswith('.md'):
             continue
     
-        current_theme = path.name.replace('.md', '')
+        current_theme = path.name[:-3]
         current_subtheme = 'Главные'
         is_questions_block_finded = False
 
@@ -47,14 +47,24 @@ def get_questions():
                 current_subtheme = line[line_title_level+1:].replace('\n', '')
                 continue
             
-            if line[0].isdigit() or line[0] == '•':
+            if (
+                (line[0].isdigit() and line[1:3] == '. ')
+                or line.startswith('- ')
+                or line.startswith('* ')
+                or line.startswith('+ ')
+            ):
+                if line[0].isdigit():
+                    question_start_index = 3
+                else:
+                    question_start_index = 2
+                
                 answer_start_index = line.find(SYMBOLS_CONTAINING_ANSWERS)
 
                 if answer_start_index == -1:
-                    question = line.replace('\n', '')
+                    question = line[question_start_index:].replace('\n', '')
                     answer = None
                 else:
-                    question = line[:answer_start_index]
+                    question = line[question_start_index:answer_start_index]
                     answer = line[answer_start_index:].replace(SYMBOLS_CONTAINING_ANSWERS, '').replace('\n', '')
 
                 if current_theme not in questions:
