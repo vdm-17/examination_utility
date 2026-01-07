@@ -1,7 +1,7 @@
 from utils import validate_input_nums
 
 OUTPUT_THEMES_INPUT_MESSAGE = '''\nВыберите подходящие темы для проверки знаний и введите
-соответсвующие им номера через запятую в выбранном порядке: '''
+соответсвующие им номера через запятую в выбранном порядке (по умолчанию - все): '''
 OUTPUT_THEMES_ERROR_INPUT_MESSAGE = '\nОшибка, введите корректный набор чисел через запятую в выбранном порядке: '
 
 OUTPUT_MODES_LIST_MESSAGE = '''1. Полностью по порядку.
@@ -21,10 +21,13 @@ def choose_output_themes(themes: list[str] | tuple[str]):
 
     output_themes_input = input(OUTPUT_THEMES_INPUT_MESSAGE)
 
-    while not validate_input_nums(output_themes_input, len(themes)):
+    while True:
+        if output_themes_input.strip() == '':
+            return themes
+        if validate_input_nums(output_themes_input, len(themes)):
+            return [themes[int(i)-1] for i in output_themes_input.replace(' ', '').split(',')]
+        
         output_themes_input = input(OUTPUT_THEMES_ERROR_INPUT_MESSAGE)
-
-    return [themes[int(i)-1] for i in output_themes_input.replace(' ', '').split(',')]
 
 
 def choose_output_mode():
