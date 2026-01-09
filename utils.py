@@ -6,7 +6,7 @@ def validate_input_nums(s: str, x: int) -> bool:
     if not pattern.fullmatch(s):
         return False
     try:
-        nums = [int(n.strip()) for n in s.split(",")]
+        nums = [int(n.strip()) for n in s.split(',')]
     except ValueError:
         return False
     return all(1 <= n <= x for n in nums)

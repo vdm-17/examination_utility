@@ -34,7 +34,7 @@ def get_questions():
 
             if not is_questions_block_finded:
                 for title_text in SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT:
-                    if line.startswith('# {}'.format(title_text)):
+                    if line.startswith(f'# {title_text}'):
                         is_questions_block_finded = True
                         questions_block_title_level = line_title_level
                         break

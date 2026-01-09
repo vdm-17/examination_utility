@@ -17,7 +17,7 @@ def choose_output_themes(themes: list[str] | tuple[str]):
     print('Список тем на выбор:\n')
     
     for i in range(0, len(themes)):
-        print('{}. {}'.format(i+1, themes[i]))
+        print(f'{i+1}. {themes[i]}')
 
     output_themes_input = input(OUTPUT_THEMES_INPUT_MESSAGE)
 
