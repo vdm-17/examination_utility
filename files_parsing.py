@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
+from os import getenv
 from utils import get_config
 import pathlib
 
+load_dotenv()
+LIBRARY_DIR_PATH = getenv('LIBRARY_DIR_PATH')
+
 config = get_config()
 
-LIBRARY_DIR_PATH = config['DEFAULT']['LIBRARY_DIR_PATH']
 SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT = \
     tuple(config['DEFAULT']['SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT'].split('\n'))
 SYMBOLS_CONTAINING_ANSWERS = config['DEFAULT']['SYMBOLS_CONTAINING_ANSWERS']
