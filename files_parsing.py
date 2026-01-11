@@ -1,17 +1,18 @@
-import configparser
+from utils import get_config
 import pathlib
 
-config = configparser.ConfigParser()
-config.read('config.ini', 'utf-8')
+config = get_config()
 
 LIBRARY_DIR_PATH = config['DEFAULT']['LIBRARY_DIR_PATH']
 SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT = \
     tuple(config['DEFAULT']['SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT'].split('\n'))
 SYMBOLS_CONTAINING_ANSWERS = config['DEFAULT']['SYMBOLS_CONTAINING_ANSWERS']
 
+QuestionsType = dict[str, dict[str, list[tuple[str]]]]
+
 
 def get_questions():
-    questions: dict[str, dict[str, list[tuple[str]]]] = {}
+    questions: QuestionsType = {}
 
     for path in pathlib.Path(LIBRARY_DIR_PATH).rglob('*'):
         if not path.name.endswith('.md'):
