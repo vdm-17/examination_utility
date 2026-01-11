@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from os import getenv
-from utils import get_config
+from app.utils import get_config
 from pydantic import BaseModel, Field
 from agents import Agent, Runner, ModelSettings
 from agents.model_settings import Reasoning

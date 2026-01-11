@@ -1,4 +1,4 @@
-from utils import validate_input_nums
+from app.utils import validate_input_nums
 
 DEFAULT_WORK_MODE = '1'
 

@@ -1,6 +1,6 @@
-from files_parsing import QuestionsType
-from examiner_agents import GeneralEstimation, QuestionAnswerEstimation, ExaminerAgent, ExaminerAgentException
-from utils import calc_general_estimation_num
+from app.files_parsing import QuestionsType
+from app.examiner_agents import GeneralEstimation, QuestionAnswerEstimation, ExaminerAgent, ExaminerAgentException
+from app.utils import calc_general_estimation_num
 from typing import Literal
 import random
 

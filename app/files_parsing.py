@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from os import getenv
-from utils import get_config
+from app.utils import get_config
 import pathlib
 
 load_dotenv()
