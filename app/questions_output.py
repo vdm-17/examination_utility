@@ -10,6 +10,25 @@ QUESTION_TEXT_STYLE = '\033[36m'
 ANSWER_TEXT_STYLE = '\033[32m'
 DEFAULT_TEXT_STYLE = '\033[0m'
 
+ESTIMATION_FIVE_TEXT_STYLE = '\033[32m'
+ESTIMATION_FOUR_TEXT_STYLE = '\033[32m'
+ESTIMATION_THREE_TEXT_STYLE = '\033[33m'
+ESTIMATION_TWO_TEXT_STYLE = '\033[31m'
+ESTIMATION_ONE_TEXT_STYLE = '\033[31m'
+
+
+def choose_estimation_text_style(estimation_num: int):
+    if estimation_num == 5:
+        return ESTIMATION_FIVE_TEXT_STYLE
+    elif estimation_num == 4:
+        return ESTIMATION_FOUR_TEXT_STYLE
+    elif estimation_num == 3:
+        return ESTIMATION_THREE_TEXT_STYLE
+    elif estimation_num == 2:
+        return ESTIMATION_TWO_TEXT_STYLE
+    else:
+        return ESTIMATION_ONE_TEXT_STYLE
+
 
 def output_questions(
         questions: QuestionsType, 
@@ -69,8 +88,10 @@ def output_questions(
                     else:
                         questions_estimations.append(estimation)
 
+                        estimation_text_style = choose_estimation_text_style(estimation.num)
+
                         print(f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}\
-                            \n\n{DEFAULT_TEXT_STYLE}Оценка: {estimation.num}\
+                            \n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}\
                             \n\nПояснение: {estimation.explanation}')
                 else:
                     if true_answer:
@@ -89,7 +110,9 @@ def output_questions(
 
                 subthemes_estimations.append(subtheme_general_estimation)
 
-                print(f'\nИтоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}')
+                estimation_text_style = choose_estimation_text_style(subtheme_general_estimation_num)
+
+                print(f'{estimation_text_style}\nИтоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
 
         if work_mode == '2':
             subthemes_estimations_nums = [e.num for e in subthemes_estimations]
@@ -99,10 +122,14 @@ def output_questions(
 
             themes_estimations.append(theme_general_estimation)
 
-            print(f'\nИтоговая оценка в теме "{theme}": {subtheme_general_estimation_num}')
+            estimation_text_style = choose_estimation_text_style(theme_general_estimation_num)
+
+            print(f'{estimation_text_style}\nИтоговая оценка в теме "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
 
     if work_mode == '2':
         themes_estimations_nums = [e.num for e in themes_estimations]
         general_estimation_num = calc_general_estimation_num(themes_estimations_nums)
+
+        estimation_text_style = choose_estimation_text_style(general_estimation_num)
     
-        print(f'\nИтоговая оценка: {general_estimation_num}')
+        print(f'{estimation_text_style}\nИтоговая оценка: {general_estimation_num}{DEFAULT_TEXT_STYLE}')
