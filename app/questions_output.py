@@ -90,9 +90,11 @@ def output_questions(
 
                         estimation_text_style = choose_estimation_text_style(estimation.num)
 
-                        print(f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}\
-                            \n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}\
-                            \n\nПояснение: {estimation.explanation}')
+                        print(
+                            f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}'
+                            f'\n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}'
+                            f'\n\nПояснение: {estimation.explanation}'
+                        )
                 else:
                     if true_answer:
                         input('\nНажмите Enter, чтобы узнать ответ на вопрос.')
