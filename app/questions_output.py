@@ -1,8 +1,11 @@
 from app.files_parsing import QuestionsType
-from app.examiner_agents import GeneralEstimation, QuestionAnswerEstimation, ExaminerAgent, ExaminerAgentException
+from app.examiner_agents import (
+    GeneralEstimation, QuestionAnswerEstimation, ExaminerAgent, ExaminerAgentException, ExaminerAgentRateLimitError
+)
 from app.utils import calc_general_estimation_num
 from typing import Literal
 import random
+import time
 
 THEME_TEXT_STYLE = '\033[31m'
 SUBTHEME_TEXT_STYLE = '\033[35m'
@@ -76,25 +79,41 @@ def output_questions(
 
                     while user_answer.strip() == '':
                         user_answer = input('\nОшибка, введите ваш ответ на вопрос: ')
-                    try:
-                        estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer)
-                    except ExaminerAgentException as e:
-                        if true_answer:
-                            print('\nОшибка, агент не смог ответить на указанный вопрос.')
-                        else:
-                            print('\nОшибка, агент не смог сравнить ваш ответ на указанный вопрос с правильным ответом.')
                     
-                        print('\nУказанный вопрос не будет учитываться при итоговой оценке.')
-                    else:
-                        questions_estimations.append(estimation)
+                    is_rate_limit_error_message_printed = False
 
-                        estimation_text_style = choose_estimation_text_style(estimation.num)
+                    while True:
+                        try:
+                            estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer)
+                        except ExaminerAgentRateLimitError as e:
+                            if not is_rate_limit_error_message_printed:
+                                print('\nОшибка, API OpenAI не справляется с текущей частотой запросов.')
+                                print('\nПодождите немного, через минуту запрос повторится.')
 
-                        print(
-                            f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}'
-                            f'\n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}'
-                            f'\n\nПояснение: {estimation.explanation}'
-                        )
+                                is_rate_limit_error_message_printed = True
+                            
+                            time.sleep(60)
+                        except ExaminerAgentException as e:
+                            if true_answer:
+                                print('\nОшибка, агент не смог ответить на указанный вопрос.')
+                            else:
+                                print('\nОшибка, агент не смог сравнить ваш ответ на указанный вопрос с правильным ответом.')
+                    
+                            print('\nУказанный вопрос не будет учитываться при итоговой оценке.')
+
+                            break
+                        else:
+                            questions_estimations.append(estimation)
+
+                            estimation_text_style = choose_estimation_text_style(estimation.num)
+
+                            print(
+                                f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}'
+                                f'\n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}'
+                                f'\n\nПояснение: {estimation.explanation}'
+                            )
+
+                            break
                 else:
                     if true_answer:
                         input('\nНажмите Enter, чтобы узнать ответ на вопрос.')

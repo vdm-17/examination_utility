@@ -6,6 +6,7 @@ from agents import Agent, Runner, ModelSettings
 from agents.model_settings import Reasoning
 from agents.run import RunConfig
 from agents.exceptions import AgentsException
+from openai import RateLimitError
 import asyncio
 
 load_dotenv()
@@ -202,6 +203,11 @@ class ExaminerAgentException(Exception):
         self.message = message
 
 
+class ExaminerAgentRateLimitError(ExaminerAgentException):
+    def __init__(self, message: str):
+        super().__init__(message)
+
+
 class ExaminerAgent:
     def __init__(self):
         load_dotenv()
@@ -234,5 +240,7 @@ class ExaminerAgent:
                     user_answer=user_answer, 
                     tracing_disabled=tracing_disabled
                 )
+        except RateLimitError as e:
+            raise ExaminerAgentRateLimitError(f'Examiner agent rate limit error: {e}') from e
         except AgentsException as e:
             raise ExaminerAgentException(f'Examiner agent response exception: {e}') from e
