@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from os import getenv
 from app.utils import get_config
 from pydantic import BaseModel, Field
-from agents import Agent, Runner, ModelSettings
+from agents import Agent, Runner, ModelSettings, WebSearchTool
 from agents.model_settings import Reasoning
 from agents.run import RunConfig
 from agents.exceptions import AgentsException
@@ -125,7 +125,7 @@ class ComparingAgent(Agent):
                 verbosity=COMPARING_AGENT_VERBOSITY,
                 store=False
             ),
-            output_type=ComparingAgentOutputSchema
+            output_type=ComparingAgentOutputSchema,
         )
     
     def get_estimation(self,
@@ -167,7 +167,8 @@ class EstimatingAgent(Agent):
                 verbosity=ESTIMATING_AGENT_VERBOSITY,
                 store=False
             ),
-            output_type=EstimatingAgentOutputSchema
+            output_type=EstimatingAgentOutputSchema,
+            tools=[WebSearchTool()]
         )
     
     def get_estimation(self,
