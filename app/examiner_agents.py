@@ -12,6 +12,8 @@ import asyncio
 load_dotenv()
 APP_ENV = getenv('APP_ENV')
 
+ESTIMATIONS_STATISTICS_DIRNAME = 'estimations_statistics'
+
 config = get_config()
 
 COMPARING_AGENT_OPENAI_MODEL = config['EXAMINER_AGENTS']['COMPARING_AGENT_OPENAI_MODEL']
@@ -56,9 +58,11 @@ ESTIMATING_AGENT_INSTRUCTIONS = (
 
 
 class Estimation:
-    def __init__(self, num: int, explanation: str | None = None):
+    def __init__(self, obj_type: str, num: int, explanation: str | None = None, obj_name: str | None = None):
+        self.obj_type = obj_type
         self.num = num
         self.explanation = explanation
+        self.obj_name = obj_name
 
 
 class QuestionAnswerEstimation(Estimation):
@@ -71,7 +75,7 @@ class QuestionAnswerEstimation(Estimation):
         num: int,
         explanation: str | None = None
     ):
-        super().__init__(num, explanation)
+        super().__init__('question', num, explanation)
         
         self.theme = theme
         self.subtheme = subtheme
@@ -81,8 +85,8 @@ class QuestionAnswerEstimation(Estimation):
 
 
 class GeneralEstimation(Estimation):
-    def __init__(self, num: int):
-        super().__init__(num)
+    def __init__(self, obj_type: str, num: int, obj_name: str | None = None):
+        super().__init__(obj_type, num, obj_name=obj_name)
 
 
 class ComparingAgentOutputSchema(BaseModel):

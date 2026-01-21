@@ -1,8 +1,13 @@
 from app.files_parsing import QuestionsType
 from app.examiner_agents import (
-    GeneralEstimation, QuestionAnswerEstimation, ExaminerAgent, ExaminerAgentException, ExaminerAgentRateLimitError
+    ESTIMATIONS_STATISTICS_DIRNAME,
+    Estimation, 
+    GeneralEstimation,
+    ExaminerAgent, 
+    ExaminerAgentException,
+    ExaminerAgentRateLimitError
 )
-from app.utils import calc_general_estimation_num
+from app.utils import calc_general_estimation_num, choose_estimation_text_style, save_user_data
 from typing import Literal
 import random
 import time
@@ -13,25 +18,6 @@ QUESTION_TEXT_STYLE = '\033[36m'
 ANSWER_TEXT_STYLE = '\033[32m'
 DEFAULT_TEXT_STYLE = '\033[0m'
 
-ESTIMATION_FIVE_TEXT_STYLE = '\033[32m'
-ESTIMATION_FOUR_TEXT_STYLE = '\033[32m'
-ESTIMATION_THREE_TEXT_STYLE = '\033[33m'
-ESTIMATION_TWO_TEXT_STYLE = '\033[31m'
-ESTIMATION_ONE_TEXT_STYLE = '\033[31m'
-
-
-def choose_estimation_text_style(estimation_num: int):
-    if estimation_num == 5:
-        return ESTIMATION_FIVE_TEXT_STYLE
-    elif estimation_num == 4:
-        return ESTIMATION_FOUR_TEXT_STYLE
-    elif estimation_num == 3:
-        return ESTIMATION_THREE_TEXT_STYLE
-    elif estimation_num == 2:
-        return ESTIMATION_TWO_TEXT_STYLE
-    else:
-        return ESTIMATION_ONE_TEXT_STYLE
-
 
 def output_questions(
         questions: QuestionsType, 
@@ -41,7 +27,7 @@ def output_questions(
     ):
     if work_mode == '2':
         examiner_agent = ExaminerAgent()
-        themes_estimations: list[GeneralEstimation] = []
+        estimations: list[Estimation] = []
 
     if output_mode == '4':
         output_themes = output_themes[:]
@@ -52,9 +38,6 @@ def output_questions(
 
         subthemes = list(questions[theme].keys())
 
-        if work_mode == '2':
-            subthemes_estimations: list[GeneralEstimation] = []
-
         if output_mode == '4' or output_mode == '3':
             random.shuffle(subthemes)
     
@@ -62,9 +45,6 @@ def output_questions(
             print(f'{SUBTHEME_TEXT_STYLE}\nПодтема: {subtheme}{DEFAULT_TEXT_STYLE}')
 
             output_questions = questions[theme][subtheme]
-
-            if work_mode == '2':
-                questions_estimations: list[QuestionAnswerEstimation] = []
 
             if output_mode == '4' or output_mode == '3' or output_mode == '2':
                 random.shuffle(output_questions)
@@ -103,7 +83,7 @@ def output_questions(
 
                             break
                         else:
-                            questions_estimations.append(estimation)
+                            estimations.append(estimation)
 
                             estimation_text_style = choose_estimation_text_style(estimation.num)
 
@@ -124,33 +104,40 @@ def output_questions(
                 question_num += 1
 
             if work_mode == '2':
-                questions_estimations_nums = [e.num for e in questions_estimations]
+                questions_estimations_nums = [e.num for e in estimations if e.obj_type == 'question']
 
                 subtheme_general_estimation_num = calc_general_estimation_num(questions_estimations_nums)
-                subtheme_general_estimation = GeneralEstimation(subtheme_general_estimation_num)
+                subtheme_general_estimation = GeneralEstimation('subtheme', subtheme_general_estimation_num, obj_name=subtheme)
 
-                subthemes_estimations.append(subtheme_general_estimation)
+                estimations.append(subtheme_general_estimation)
 
                 estimation_text_style = choose_estimation_text_style(subtheme_general_estimation_num)
 
                 print(f'{estimation_text_style}\nИтоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
 
         if work_mode == '2':
-            subthemes_estimations_nums = [e.num for e in subthemes_estimations]
+            subthemes_estimations_nums = [e.num for e in estimations if e.obj_type == 'subtheme']
 
             theme_general_estimation_num = calc_general_estimation_num(subthemes_estimations_nums)
-            theme_general_estimation = GeneralEstimation(theme_general_estimation_num)
+            theme_general_estimation = GeneralEstimation('theme', theme_general_estimation_num, obj_name=theme)
 
-            themes_estimations.append(theme_general_estimation)
+            estimations.append(theme_general_estimation)
 
             estimation_text_style = choose_estimation_text_style(theme_general_estimation_num)
 
             print(f'{estimation_text_style}\nИтоговая оценка в теме "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
 
     if work_mode == '2':
-        themes_estimations_nums = [e.num for e in themes_estimations]
+        themes_estimations_nums = [e.num for e in estimations if e.obj_type == 'theme']
+
         general_estimation_num = calc_general_estimation_num(themes_estimations_nums)
+        general_estimation = GeneralEstimation('all', general_estimation_num)
+
+        estimations.append(general_estimation)
 
         estimation_text_style = choose_estimation_text_style(general_estimation_num)
     
         print(f'{estimation_text_style}\nИтоговая оценка: {general_estimation_num}{DEFAULT_TEXT_STYLE}')
+
+        now = time.strftime('%Y%m%d%H%M%S')
+        save_user_data(ESTIMATIONS_STATISTICS_DIRNAME, f'{now}.data', estimations)

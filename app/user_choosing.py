@@ -2,7 +2,7 @@ from app.utils import validate_input_nums
 
 DEFAULT_WORK_MODE = '1'
 
-OUTPUT_THEMES_INPUT_MESSAGE = '''\nВыберите подходящие темы для проверки знаний и введите
+OUTPUT_THEMES_INPUT_MESSAGE = '''\nВыберите подходящие темы и введите
 соответсвующие им номера через запятую в выбранном порядке (по умолчанию - все): '''
 OUTPUT_THEMES_ERROR_INPUT_MESSAGE = '\nОшибка, введите корректный набор чисел через запятую в выбранном порядке: '
 
@@ -17,8 +17,7 @@ DEFAULT_OUTPUT_MODE = '1'
 
 def choose_work_mode():
     print('Список доступных режимов работы программы:\n')
-    print('1-Повторение материала.')
-    print('2-Экзамен.')
+    print('1-Повторение материала.\n2-Экзамен.\n3-Просмотр статистики.')
 
     work_mode_input = input('\nВыберите один из доступных режимов работы программы\nи введите соответсвующий номер (по умолчанию - 1): ')
 
@@ -26,7 +25,7 @@ def choose_work_mode():
         if work_mode_input.strip() == '':
             return DEFAULT_WORK_MODE
         if work_mode_input.strip().isdigit():
-            if 1 <= int(work_mode_input.strip()) <= 2:
+            if 1 <= int(work_mode_input.strip()) <= 3:
                 return work_mode_input
         
         work_mode_input = input('\nОшибка, введите корректное число: ')
