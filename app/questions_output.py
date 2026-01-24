@@ -1,12 +1,18 @@
 from app.files_parsing import Questions
 from app.estimations import Estimation, GeneralEstimation
+from app.hinting_agents import SimpleHintingAgent, SmartHintingAgent
 from app.examiner_agents import (
     ESTIMATIONS_STATISTICS_DIRNAME,
     ExaminerAgent, 
     ExaminerAgentException,
     ExaminerAgentRateLimitError
 )
-from app.user_choosing import WorkMode, OutputMode
+from app.user_choosing import (
+    WorkMode, 
+    OutputMode,
+    choose_hint_output_mode,
+    choose_hint_size_mode
+)
 from app.utils import (
     DEFAULT_TEXT_STYLE,
     calc_general_estimation_num,
@@ -29,7 +35,10 @@ def output_questions(
         output_mode: OutputMode
     ):
     if work_mode == 2:
+        simple_hinting_agent = SimpleHintingAgent()
+        smart_hinting_agent = SmartHintingAgent()
         examiner_agent = ExaminerAgent()
+
         estimations: list[Estimation] = []
 
     if output_mode == 4:
@@ -64,6 +73,30 @@ def output_questions(
                 print(DEFAULT_TEXT_STYLE)
 
                 if work_mode == 2:
+                    print()
+                    hint_output_mode = choose_hint_output_mode(work_mode)
+
+                    if hint_output_mode == 2:
+                        print()
+                        hint_size_mode = choose_hint_size_mode()
+
+                        if hint_size_mode == 1:
+                            hint_size = 'мелкая'
+                        elif hint_size_mode == 2:
+                            hint_size = 'средняя'
+                        else:
+                            hint_size = 'крупная'
+                    
+                        if true_answer == None:
+                            hinting_agent_output = smart_hinting_agent.get_answer_with_hint(theme, subtheme, question, hint_size)
+
+                            true_answer = hinting_agent_output.true_answer
+                            hint = hinting_agent_output.hint
+                        else:
+                            hint = simple_hinting_agent.get_hint(theme, subtheme, question, hint_size, true_answer)
+                    
+                        print(f'{hint_size[0].upper()}{hint_size[1:]} подсказка: {hint}')
+                    
                     print()
                     user_answer = input('Введите ваш ответ на вопрос: ')
 

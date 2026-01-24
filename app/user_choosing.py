@@ -87,3 +87,34 @@ def choose_output_mode() -> OutputMode:
 
     print()
     return choose_index(4, input_message)
+
+
+def choose_hint_output_mode(work_mode: WorkMode) -> HintOutputMode:
+    print('Варианты на выбор:')
+
+    print()
+    if work_mode == 1:
+        print('1-Узнать ответ на вопрос.')
+    else:
+        print('1-Ввести ответ на вопрос.')
+    
+    print('2-Вывести подсказку.')
+
+    input_message = 'Выберите нужна ли вам подсказка и введите соответсвующий номер (по умолчанию - 1): '
+
+    print()
+    return choose_index(2, input_message)
+
+
+def choose_hint_size_mode() -> HintSizeMode:
+    print('Варианты размера подсказки на выбор:')
+
+    print()
+    print('1-Мелкая')
+    print('2-Средняя')
+    print('3-Крупная')
+
+    input_message = 'Выберите нужный размер подсказки и введите соответсвующий номер (по умолчанию - 1): '
+
+    print()
+    return choose_index(3, input_message)
