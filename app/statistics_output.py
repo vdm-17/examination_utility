@@ -1,16 +1,22 @@
 import pathlib
-from app.examiner_agents import GeneralEstimation, QuestionAnswerEstimation, ESTIMATIONS_STATISTICS_DIRNAME
+from app.estimations import GeneralEstimation, QuestionAnswerEstimation
+from app.examiner_agents import ESTIMATIONS_STATISTICS_DIRNAME
 from app.user_choosing import choose_output_themes
-from app.utils import PROGRAM_DATA_DIRNAME, load_user_data, calc_general_estimation_num, choose_estimation_text_style
+from app.utils import (
+    PROGRAM_DATA_DIRNAME,
+    DEFAULT_TEXT_STYLE,
+    load_user_data, 
+    calc_general_estimation_num, 
+    choose_estimation_text_style
+)
 
-DEFAULT_TEXT_STYLE = '\033[0m'
 
-
-def output_estimations():
+def output_estimations_stats():
     stat_estimations: list[GeneralEstimation | QuestionAnswerEstimation] = []
 
     home_path = pathlib.Path.home()
     prog_path = home_path / PROGRAM_DATA_DIRNAME
+
     for path in prog_path.rglob('*'):
         if path.is_dir():
             continue
@@ -21,21 +27,26 @@ def output_estimations():
             stat_estimations.extend(user_estimations_stat_data)
     
     if len(stat_estimations) == 0:
-        print('\nНа данный момент у пользователя отсутсвует статистика оценок. Работа программы завершена.')
+        print('На данный момент у пользователя отсутсвует статистика оценок. Работа программы завершена.')
         return
-
-    print('\nСтатистика оценок пользователя:')
+    
+    print('Статистика оценок пользователя:')
 
     stat_general_estimations_nums = [e.num for e in stat_estimations if e.obj_type == 'all']
     avg_general_estimation_num = calc_general_estimation_num(stat_general_estimations_nums)
     
     estimation_text_style = choose_estimation_text_style(avg_general_estimation_num)
 
-    print(f'{estimation_text_style}\nСредняя итоговая оценка: {avg_general_estimation_num}{DEFAULT_TEXT_STYLE}')
+    print(estimation_text_style)
+    print(f'Средняя итоговая оценка: {avg_general_estimation_num}', end='')
+    print(DEFAULT_TEXT_STYLE)
 
-    print('\nВыберите список тем для вывода статистики.')
+    print()
+    print('Выберите список тем для вывода статистики.')
 
     themes = list(set([e.obj_name for e in stat_estimations if e.obj_type == 'theme']))
+
+    print()
     output_themes = choose_output_themes(themes)
 
     for theme in output_themes:
@@ -45,6 +56,9 @@ def output_estimations():
 
         estimation_text_style = choose_estimation_text_style(avg_theme_general_estimation_num)
 
-        print(f'{estimation_text_style}\nСредняя итоговая оценка в теме "{theme}": {avg_theme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
+        print(estimation_text_style)
+        print(f'Средняя итоговая оценка в теме "{theme}": {avg_theme_general_estimation_num}', end='')
+        print(DEFAULT_TEXT_STYLE)
     
-    print('\nТемы закончились, работа программы завершена.')
+    print()
+    print('Темы закончились, работа программы завершена.')

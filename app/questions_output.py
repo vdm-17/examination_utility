@@ -1,14 +1,18 @@
-from app.files_parsing import QuestionsType
+from app.files_parsing import Questions
+from app.estimations import Estimation, GeneralEstimation
 from app.examiner_agents import (
     ESTIMATIONS_STATISTICS_DIRNAME,
-    Estimation, 
-    GeneralEstimation,
     ExaminerAgent, 
     ExaminerAgentException,
     ExaminerAgentRateLimitError
 )
-from app.utils import calc_general_estimation_num, choose_estimation_text_style, save_user_data
-from typing import Literal
+from app.user_choosing import WorkMode, OutputMode
+from app.utils import (
+    DEFAULT_TEXT_STYLE,
+    calc_general_estimation_num,
+    choose_estimation_text_style, 
+    save_user_data
+)
 import random
 import time
 
@@ -16,94 +20,116 @@ THEME_TEXT_STYLE = '\033[31m'
 SUBTHEME_TEXT_STYLE = '\033[35m'
 QUESTION_TEXT_STYLE = '\033[36m'
 ANSWER_TEXT_STYLE = '\033[32m'
-DEFAULT_TEXT_STYLE = '\033[0m'
 
 
 def output_questions(
-        questions: QuestionsType, 
+        questions: Questions, 
         output_themes: list[str],
-        work_mode: Literal['1', '2'], 
-        output_mode: Literal['1', '2', '3', '4']
+        work_mode: WorkMode, 
+        output_mode: OutputMode
     ):
-    if work_mode == '2':
+    if work_mode == 2:
         examiner_agent = ExaminerAgent()
         estimations: list[Estimation] = []
 
-    if output_mode == '4':
+    if output_mode == 4:
         output_themes = output_themes[:]
         random.shuffle(output_themes)
 
     for theme in output_themes:
-        print(f'{THEME_TEXT_STYLE}\nТема: {theme}{DEFAULT_TEXT_STYLE}')
+        print(THEME_TEXT_STYLE)
+        print(f'Тема: {theme}', end='')
+        print(DEFAULT_TEXT_STYLE)
 
         subthemes = list(questions[theme].keys())
 
-        if output_mode == '4' or output_mode == '3':
+        if output_mode == 4 or output_mode == 3:
             random.shuffle(subthemes)
     
         for subtheme in subthemes:
-            print(f'{SUBTHEME_TEXT_STYLE}\nПодтема: {subtheme}{DEFAULT_TEXT_STYLE}')
+            print(SUBTHEME_TEXT_STYLE)
+            print(f'Подтема: {subtheme}', end='')
+            print(DEFAULT_TEXT_STYLE)
 
             output_questions = questions[theme][subtheme]
 
-            if output_mode == '4' or output_mode == '3' or output_mode == '2':
+            if output_mode == 4 or output_mode == 3 or output_mode == 2:
                 random.shuffle(output_questions)
         
             question_num = 1
 
             for question, true_answer in output_questions:
-                print(f'{QUESTION_TEXT_STYLE}\nВопрос {question_num}: {question}{DEFAULT_TEXT_STYLE}')
+                print(QUESTION_TEXT_STYLE)
+                print(f'Вопрос {question_num}: {question}', end='')
+                print(DEFAULT_TEXT_STYLE)
 
-                if work_mode == '2':
-                    user_answer = input('\nВведите ваш ответ на вопрос: ')
+                if work_mode == 2:
+                    print()
+                    user_answer = input('Введите ваш ответ на вопрос: ')
 
                     while user_answer.strip() == '':
-                        user_answer = input('\nОшибка, введите ваш ответ на вопрос: ')
+                        print()
+                        user_answer = input('Ошибка, введите ваш ответ на вопрос: ')
                     
                     is_rate_limit_error_message_printed = False
 
                     while True:
                         try:
-                            estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer)
-                        except ExaminerAgentRateLimitError as e:
+                            question_estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer)
+                        except ExaminerAgentRateLimitError:
                             if not is_rate_limit_error_message_printed:
-                                print('\nОшибка, API OpenAI не справляется с текущей частотой запросов.')
-                                print('\nПодождите немного, через минуту запрос повторится.')
+                                print()
+                                print('Ошибка, API OpenAI не справляется с текущей частотой запросов.')
+
+                                print()
+                                print('Подождите немного, через минуту запрос повторится.')
 
                                 is_rate_limit_error_message_printed = True
                             
                             time.sleep(60)
-                        except ExaminerAgentException as e:
+                        except ExaminerAgentException:
+                            print()
                             if true_answer:
-                                print('\nОшибка, агент не смог ответить на указанный вопрос.')
+                                print('Ошибка, агент не смог ответить на указанный вопрос.')
                             else:
-                                print('\nОшибка, агент не смог сравнить ваш ответ на указанный вопрос с правильным ответом.')
-                    
-                            print('\nУказанный вопрос не будет учитываться при итоговой оценке.')
+                                print('Ошибка, агент не смог сравнить ваш ответ на указанный вопрос с правильным ответом.')
+
+                            print()
+                            print('Указанный вопрос не будет учитываться при итоговой оценке.')
 
                             break
                         else:
-                            estimations.append(estimation)
+                            estimations.append(question_estimation)
 
-                            estimation_text_style = choose_estimation_text_style(estimation.num)
+                            print(ANSWER_TEXT_STYLE)
+                            print(f'Правильный ответ: {question_estimation.true_answer}', end='')
+                            print(DEFAULT_TEXT_STYLE)
 
-                            print(
-                                f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {estimation.true_answer}'
-                                f'\n\n{estimation_text_style}Оценка: {estimation.num}{DEFAULT_TEXT_STYLE}'
-                                f'\n\nПояснение: {estimation.explanation}'
-                            )
+                            question_estimation_text_style = choose_estimation_text_style(question_estimation.num)
+
+                            print(question_estimation_text_style)
+                            print(f'Оценка: {question_estimation.num}', end='')
+                            print(DEFAULT_TEXT_STYLE)
+
+                            print()
+                            print(f'Пояснение: {question_estimation.explanation}')
 
                             break
                 else:
                     if true_answer:
-                        input('\nНажмите Enter, чтобы узнать ответ на вопрос.')
-                        print(f'{ANSWER_TEXT_STYLE}\nПравильный ответ: {true_answer}{DEFAULT_TEXT_STYLE}')
-            
-                input('\nНажмите Enter, чтобы перейти к следующему вопросу.')
+                        print()
+                        input('Нажмите Enter, чтобы узнать ответ на вопрос.')
+                        
+                        print(ANSWER_TEXT_STYLE)
+                        print(f'Правильный ответ: {true_answer}', end='')
+                        print(DEFAULT_TEXT_STYLE)
+
+                print()
+                input('Нажмите Enter, чтобы перейти к следующему вопросу.')
 
                 question_num += 1
 
-            if work_mode == '2':
+            if work_mode == 2:
                 questions_estimations_nums = [e.num for e in estimations if e.obj_type == 'question']
 
                 subtheme_general_estimation_num = calc_general_estimation_num(questions_estimations_nums)
@@ -111,11 +137,13 @@ def output_questions(
 
                 estimations.append(subtheme_general_estimation)
 
-                estimation_text_style = choose_estimation_text_style(subtheme_general_estimation_num)
+                subtheme_estimation_text_style = choose_estimation_text_style(subtheme_general_estimation_num)
 
-                print(f'{estimation_text_style}\nИтоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
+                print(subtheme_estimation_text_style)
+                print(f'Итоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}', end='')
+                print(DEFAULT_TEXT_STYLE)
 
-        if work_mode == '2':
+        if work_mode == 2:
             subthemes_estimations_nums = [e.num for e in estimations if e.obj_type == 'subtheme']
 
             theme_general_estimation_num = calc_general_estimation_num(subthemes_estimations_nums)
@@ -123,11 +151,13 @@ def output_questions(
 
             estimations.append(theme_general_estimation)
 
-            estimation_text_style = choose_estimation_text_style(theme_general_estimation_num)
+            theme_estimation_text_style = choose_estimation_text_style(theme_general_estimation_num)
 
-            print(f'{estimation_text_style}\nИтоговая оценка в теме "{theme}": {subtheme_general_estimation_num}{DEFAULT_TEXT_STYLE}')
+            print(theme_estimation_text_style)
+            print(f'Итоговая оценка в теме "{theme}": {subtheme_general_estimation_num}', end='')
+            print(DEFAULT_TEXT_STYLE)
 
-    if work_mode == '2':
+    if work_mode == 2:
         themes_estimations_nums = [e.num for e in estimations if e.obj_type == 'theme']
 
         general_estimation_num = calc_general_estimation_num(themes_estimations_nums)
@@ -135,9 +165,11 @@ def output_questions(
 
         estimations.append(general_estimation)
 
-        estimation_text_style = choose_estimation_text_style(general_estimation_num)
-    
-        print(f'{estimation_text_style}\nИтоговая оценка: {general_estimation_num}{DEFAULT_TEXT_STYLE}')
+        general_estimation_text_style = choose_estimation_text_style(general_estimation_num)
+
+        print(general_estimation_text_style)
+        print(f'Итоговая оценка: {general_estimation_num}', end='')
+        print(DEFAULT_TEXT_STYLE)
 
         now = time.strftime('%Y%m%d%H%M%S')
         save_user_data(ESTIMATIONS_STATISTICS_DIRNAME, f'{now}.data', estimations)

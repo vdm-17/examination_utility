@@ -11,11 +11,11 @@ config = get_config()
 SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT = tuple(config['DEFAULT']['SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT'].split('\n'))
 SYMBOLS_CONTAINING_ANSWERS = config['DEFAULT']['SYMBOLS_CONTAINING_ANSWERS']
 
-QuestionsType = dict[str, dict[str, list[tuple[str]]]]
+Questions = dict[str, dict[str, list[tuple[str]]]]
 
 
 def get_questions():
-    questions: QuestionsType = {}
+    questions: Questions = {}
 
     for path in pathlib.Path(LIBRARY_DIR_PATH).rglob('*'):
         if not path.name.endswith('.md'):
