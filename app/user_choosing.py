@@ -3,6 +3,7 @@ from app.utils import validate_input_nums
 
 WorkMode = Literal[1, 2, 3]
 OutputMode = Literal[1, 2, 3, 4]
+LibraryAnswersUsingMode = Literal[1, 2]
 HintOutputMode = Literal[1, 2]
 HintSizeMode = Literal[1, 2, 3]
 
@@ -87,6 +88,22 @@ def choose_output_mode() -> OutputMode:
 
     print()
     return choose_index(4, input_message)
+
+
+def choose_library_answers_using_mode() -> LibraryAnswersUsingMode:
+    print('Варианты использования ответов на вопросы из библиотеки:')
+
+    print()
+    print('1. Всегда использовать ответы из библиотеки, если те имееются.')
+    print('2. Не использовать ответы из библиотеки.')
+
+    input_message = (
+        'Выберите, хотите ли вы использовать ответы на вопросы из библиотеки и введите'
+        'соответсвующий номер (по умолчанию - 1): '
+    )
+
+    print()
+    return choose_index(2, input_message)
 
 
 def choose_hint_output_mode(work_mode: WorkMode) -> HintOutputMode:

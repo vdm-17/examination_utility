@@ -5,6 +5,7 @@ from app.examiner_agents import ExaminerAgent, ExaminerAgentException, ExaminerA
 from app.user_choosing import (
     WorkMode, 
     OutputMode,
+    choose_library_answers_using_mode,
     choose_hint_output_mode,
     choose_hint_size_mode
 )
@@ -30,6 +31,9 @@ def output_questions(
         output_mode: OutputMode
     ):
     if work_mode == 2:
+        print()
+        library_answers_using_mode = choose_library_answers_using_mode()
+
         simple_hinting_agent = SimpleHintingAgent()
         smart_hinting_agent = SmartHintingAgent()
         examiner_agent = ExaminerAgent()
@@ -68,6 +72,9 @@ def output_questions(
                 print(DEFAULT_TEXT_STYLE)
 
                 if work_mode == 2:
+                    if library_answers_using_mode == 2:
+                        true_answer = None
+                    
                     print()
                     hint_output_mode = choose_hint_output_mode(work_mode)
 
