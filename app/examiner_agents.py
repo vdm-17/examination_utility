@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from os import getenv
 from app.estimations import QuestionAnswerEstimation
 from app.utils import get_config
@@ -10,20 +9,7 @@ from agents.exceptions import AgentsException
 from openai import RateLimitError
 import asyncio
 
-load_dotenv()
-APP_ENV = getenv('APP_ENV')
-
 ESTIMATIONS_STATISTICS_DIRNAME = 'estimations_statistics'
-
-config = get_config()
-
-COMPARING_AGENT_OPENAI_MODEL = config['EXAMINER_AGENTS']['COMPARING_AGENT_OPENAI_MODEL']
-COMPARING_AGENT_REASONING_EFFORT = config['EXAMINER_AGENTS']['COMPARING_AGENT_REASONING_EFFORT']
-COMPARING_AGENT_VERBOSITY = config['EXAMINER_AGENTS']['COMPARING_AGENT_VERBOSITY']
-
-ESTIMATING_AGENT_OPENAI_MODEL = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_OPENAI_MODEL']
-ESTIMATING_AGENT_REASONING_EFFORT = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_REASONING_EFFORT']
-ESTIMATING_AGENT_VERBOSITY = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_VERBOSITY']
 
 COMPARING_AGENT_INSTRUCTIONS = (
     'Ты бот-экзаменатор. Твоя задача — семантически сравнивать ответ '
@@ -89,13 +75,19 @@ class EstimatingAgentOutputSchema(BaseModel):
 
 class ComparingAgent(Agent):
     def __init__(self, name: str):
+        config = get_config()
+
+        openai_model = config['EXAMINER_AGENTS']['COMPARING_AGENT_OPENAI_MODEL']
+        reasoning_effort = config['EXAMINER_AGENTS']['COMPARING_AGENT_REASONING_EFFORT']
+        verbosity = config['EXAMINER_AGENTS']['COMPARING_AGENT_VERBOSITY']
+
         super().__init__( 
             name=name,
             instructions=COMPARING_AGENT_INSTRUCTIONS,
-            model=COMPARING_AGENT_OPENAI_MODEL,
+            model=openai_model,
             model_settings=ModelSettings(
-                reasoning=Reasoning(effort=COMPARING_AGENT_REASONING_EFFORT),
-                verbosity=COMPARING_AGENT_VERBOSITY,
+                reasoning=Reasoning(effort=reasoning_effort),
+                verbosity=verbosity,
                 store=False
             ),
             output_type=ComparingAgentOutputSchema,
@@ -131,13 +123,19 @@ class ComparingAgent(Agent):
 
 class EstimatingAgent(Agent):
     def __init__(self, name: str):
+        config = get_config()
+
+        openai_model = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_OPENAI_MODEL']
+        reasoning_effort = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_REASONING_EFFORT']
+        verbosity = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_VERBOSITY']
+
         super().__init__( 
             name=name,
             instructions=ESTIMATING_AGENT_INSTRUCTIONS,
-            model=ESTIMATING_AGENT_OPENAI_MODEL,
+            model=openai_model,
             model_settings=ModelSettings(reasoning=Reasoning(
-                effort=ESTIMATING_AGENT_REASONING_EFFORT), 
-                verbosity=ESTIMATING_AGENT_VERBOSITY,
+                effort=reasoning_effort), 
+                verbosity=verbosity,
                 store=False
             ),
             output_type=EstimatingAgentOutputSchema,
@@ -184,14 +182,14 @@ class ExaminerAgentRateLimitError(ExaminerAgentException):
 
 class ExaminerAgent:
     def __init__(self):
-        load_dotenv()
-
         self.name = 'Бот-экзаменатор.'
         self.comparing_agent = ComparingAgent(self.name)
         self.estimating_agent = EstimatingAgent(self.name)
     
     def get_estimation(self, theme: str, subtheme: str, question: str, user_answer: str, true_answer: str | None = None):
-        if APP_ENV == 'development':
+        app_env = getenv('APP_ENV')
+
+        if app_env == 'development':
             tracing_disabled = False
         else:
             tracing_disabled = True

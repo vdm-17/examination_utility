@@ -1,23 +1,21 @@
-from dotenv import load_dotenv
 from os import getenv
 from app.utils import get_config
 import pathlib
-
-load_dotenv()
-LIBRARY_DIR_PATH = getenv('LIBRARY_DIR_PATH')
-
-config = get_config()
-
-SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT = tuple(config['DEFAULT']['SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT'].split('\n'))
-SYMBOLS_CONTAINING_ANSWERS = config['DEFAULT']['SYMBOLS_CONTAINING_ANSWERS']
 
 Questions = dict[str, dict[str, list[tuple[str]]]]
 
 
 def get_questions():
+    library_dir_path = getenv('LIBRARY_DIR_PATH')
+
+    config = get_config()
+
+    searchable_questions_blocks_headings_text = config['DEFAULT']['SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT'].split('\n')
+    symbols_containing_answers = config['DEFAULT']['SYMBOLS_CONTAINING_ANSWERS']
+
     questions: Questions = {}
 
-    for path in pathlib.Path(LIBRARY_DIR_PATH).rglob('*'):
+    for path in pathlib.Path(library_dir_path).rglob('*'):
         if not path.name.endswith('.md'):
             continue
     
@@ -37,7 +35,7 @@ def get_questions():
                     break
 
             if not is_questions_block_finded:
-                for title_text in SEARCHABLE_QUESTIONS_BLOCKS_HEADINGS_TEXT:
+                for title_text in searchable_questions_blocks_headings_text:
                     if line.startswith(f'# {title_text}'):
                         is_questions_block_finded = True
                         questions_block_title_level = line_title_level
@@ -62,14 +60,14 @@ def get_questions():
                 else:
                     question_start_index = 2
                 
-                answer_start_index = line.find(SYMBOLS_CONTAINING_ANSWERS)
+                answer_start_index = line.find(symbols_containing_answers)
 
                 if answer_start_index == -1:
                     question = line[question_start_index:].replace('\n', '')
                     answer = None
                 else:
                     question = line[question_start_index:answer_start_index]
-                    answer = line[answer_start_index:].replace(SYMBOLS_CONTAINING_ANSWERS, '').replace('\n', '')
+                    answer = line[answer_start_index:].replace(symbols_containing_answers, '').replace('\n', '')
 
                 if current_theme not in questions:
                     questions[current_theme] = {}

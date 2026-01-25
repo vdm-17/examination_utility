@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from os import getenv
 from app.utils import get_config
 from typing import Literal
@@ -9,21 +8,7 @@ from agents.run import RunConfig
 from openai import RateLimitError
 import asyncio
 
-load_dotenv()
-APP_ENV = getenv('APP_ENV')
-
-config = get_config()
-
-SIMPLE_HINTING_AGENT_OPENAI_MODEL = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_OPENAI_MODEL']
-SIMPLE_HINTING_AGENT_REASONING_EFFORT = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_REASONING_EFFORT']
-SIMPLE_HINTING_AGENT_VERBOSITY = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_VERBOSITY']
-
-SMART_HINTING_AGENT_OPENAI_MODEL = config['HINTING_AGENTS']['SMART_HINTING_AGENT_OPENAI_MODEL']
-SMART_HINTING_AGENT_REASONING_EFFORT = config['HINTING_AGENTS']['SMART_HINTING_AGENT_REASONING_EFFORT']
-SMART_HINTING_AGENT_VERBOSITY = config['HINTING_AGENTS']['SMART_HINTING_AGENT_VERBOSITY']
-
 HINTING_AGENT_NAME = 'Бот-подсказчик'
-
 HINTING_AGENT_INSTRUCTIONS = (
     'Ты бот-подсказчик. Твоя задача - формулировать и составлять подсказки для правильного'
     'ответа на вопрос, загаданный пользователю. Подсказки не должны содержать сам правильный'
@@ -56,23 +41,31 @@ class HintingAgentRateLimitError(HintingAgentException):
 
 class SimpleHintingAgent(Agent):
     def __init__(self):
+        config = get_config()
+
+        openai_model = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_OPENAI_MODEL']
+        reasoning_effort = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_REASONING_EFFORT']
+        verbosity = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_VERBOSITY']
+
         super().__init__(
             name=HINTING_AGENT_NAME, 
             instructions=HINTING_AGENT_INSTRUCTIONS.format(
                 additional_instructions=SIMPLE_HINTING_AGENT_ADDITIONAL_INSTRUCTIONS,
                 output_format=SIMPLE_HINTING_AGENT_OUTPUT_FORMAT
             ),
-            model=SIMPLE_HINTING_AGENT_OPENAI_MODEL,
+            model=openai_model,
             model_settings=ModelSettings(
-                reasoning=Reasoning(effort=SIMPLE_HINTING_AGENT_REASONING_EFFORT), 
-                verbosity=SIMPLE_HINTING_AGENT_VERBOSITY, 
+                reasoning=Reasoning(effort=reasoning_effort), 
+                verbosity=verbosity, 
                 store=False
             ),
             output_type=str,
         )
     
     def get_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize, true_answer: str) -> str:
-        if APP_ENV == 'development':
+        app_env = getenv('APP_ENV')
+
+        if app_env == 'development':
             tracing_disabled = False
         else:
             tracing_disabled = True
@@ -100,6 +93,12 @@ class SmartHintingAgentOutputSchema(BaseModel):
 
 class SmartHintingAgent(Agent):
     def __init__(self):
+        config = get_config()
+
+        openai_model = config['HINTING_AGENTS']['SMART_HINTING_AGENT_OPENAI_MODEL']
+        reasoning_effort = config['HINTING_AGENTS']['SMART_HINTING_AGENT_REASONING_EFFORT']
+        verbosity = config['HINTING_AGENTS']['SMART_HINTING_AGENT_VERBOSITY']
+
         super().__init__(
             name=HINTING_AGENT_NAME, 
             instructions=HINTING_AGENT_INSTRUCTIONS.format(
@@ -107,17 +106,19 @@ class SmartHintingAgent(Agent):
                 output_format=SMART_HINTING_AGENT_OUTPUT_FORMAT
             ),
             tools=[WebSearchTool()],
-            model=SMART_HINTING_AGENT_OPENAI_MODEL,
+            model=openai_model,
             model_settings=ModelSettings(
-                reasoning=Reasoning(effort=SMART_HINTING_AGENT_REASONING_EFFORT), 
-                verbosity=SIMPLE_HINTING_AGENT_VERBOSITY, 
+                reasoning=Reasoning(effort=reasoning_effort), 
+                verbosity=verbosity, 
                 store=False
             ),
             output_type=SmartHintingAgentOutputSchema
         )
     
     def get_answer_with_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize) -> SmartHintingAgentOutputSchema:
-        if APP_ENV == 'development':
+        app_env = getenv('APP_ENV')
+        
+        if app_env == 'development':
             tracing_disabled = False
         else:
             tracing_disabled = True
