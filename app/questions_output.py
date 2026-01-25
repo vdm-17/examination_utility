@@ -192,6 +192,9 @@ def output_questions(
             print(f'Итоговая оценка в теме "{theme}": {subtheme_general_estimation_num}', end='')
             print(DEFAULT_TEXT_STYLE)
 
+    print()
+    print('Вопросы закончились.')
+
     if work_mode == 2:
         themes_estimations_nums = [e.num for e in estimations if e.obj_type == 'theme']
 
@@ -201,7 +204,7 @@ def output_questions(
         estimations.append(general_estimation)
 
         general_estimation_text_style = choose_estimation_text_style(general_estimation_num)
-
+        
         print(general_estimation_text_style)
         print(f'Итоговая оценка: {general_estimation_num}', end='')
         print(DEFAULT_TEXT_STYLE)

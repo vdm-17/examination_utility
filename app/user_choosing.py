@@ -1,7 +1,7 @@
 from typing import Literal
 from app.utils import validate_input_nums
 
-WorkMode = Literal[1, 2, 3]
+WorkMode = Literal[1, 2, 3, 4]
 OutputMode = Literal[1, 2, 3, 4]
 LibraryAnswersUsingMode = Literal[1, 2]
 HintOutputMode = Literal[1, 2]
@@ -42,6 +42,7 @@ def choose_work_mode() -> WorkMode:
     print('1-Повторение материала.')
     print('2-Экзамен.')
     print('3-Просмотр статистики.')
+    print('4-Выход из программы.')
 
     input_message = (
         'Выберите один из доступных режимов работы программы\n'
@@ -49,7 +50,7 @@ def choose_work_mode() -> WorkMode:
     )
     
     print()
-    return choose_index(3, input_message)
+    return choose_index(4, input_message)
 
 
 def choose_output_themes(themes: list[str] | tuple[str]):

@@ -60,4 +60,4 @@ def output_estimations_stats():
         print(DEFAULT_TEXT_STYLE)
     
     print()
-    print('Темы закончились, работа программы завершена.')
+    print('Темы закончились.')
