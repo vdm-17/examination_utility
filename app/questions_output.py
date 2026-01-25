@@ -1,12 +1,7 @@
 from app.files_parsing import Questions
-from app.estimations import Estimation, GeneralEstimation
+from app.estimations import Estimation, GeneralEstimation, ESTIMATIONS_STATISTICS_DIRNAME
 from app.hinting_agents import SimpleHintingAgent, SmartHintingAgent
-from app.examiner_agents import (
-    ESTIMATIONS_STATISTICS_DIRNAME,
-    ExaminerAgent, 
-    ExaminerAgentException,
-    ExaminerAgentRateLimitError
-)
+from app.examiner_agents import ExaminerAgent, ExaminerAgentException, ExaminerAgentRateLimitError
 from app.user_choosing import (
     WorkMode, 
     OutputMode,

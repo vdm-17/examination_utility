@@ -1,6 +1,5 @@
 import pathlib
-from app.estimations import GeneralEstimation, QuestionAnswerEstimation
-from app.examiner_agents import ESTIMATIONS_STATISTICS_DIRNAME
+from app.estimations import GeneralEstimation, QuestionAnswerEstimation, ESTIMATIONS_STATISTICS_DIRNAME
 from app.user_choosing import choose_output_themes
 from app.utils import (
     PROGRAM_DATA_DIRNAME,

@@ -9,8 +9,6 @@ from agents.exceptions import AgentsException
 from openai import RateLimitError
 import asyncio
 
-ESTIMATIONS_STATISTICS_DIRNAME = 'estimations_statistics'
-
 COMPARING_AGENT_INSTRUCTIONS = (
     'Ты бот-экзаменатор. Твоя задача — семантически сравнивать ответ '
     'пользователя на предоставленный вопрос с указанным правильным ответом, '

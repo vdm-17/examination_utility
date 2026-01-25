@@ -1,3 +1,5 @@
+ESTIMATIONS_STATISTICS_DIRNAME = 'estimations_statistics'
+
 class Estimation:
     def __init__(self, obj_type: str, num: int, explanation: str | None = None, obj_name: str | None = None):
         self.obj_type = obj_type
