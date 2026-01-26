@@ -3,7 +3,7 @@ from app.estimations import Estimation, GeneralEstimation, ESTIMATIONS_STATISTIC
 from app.agents.hinting import SimpleHintingAgent, SmartHintingAgent
 from app.agents.examiner import ExaminerAgent, ExaminerAgentException, ExaminerAgentRateLimitError
 from app.user_choosing import (
-    WorkMode, 
+    Action, 
     OutputMode,
     choose_library_answers_using_mode,
     choose_hint_output_mode,
@@ -27,10 +27,10 @@ ANSWER_TEXT_STYLE = '\033[32m'
 def output_questions(
         questions: Questions, 
         output_themes: list[str],
-        work_mode: WorkMode, 
+        action: Action, 
         output_mode: OutputMode
     ):
-    if work_mode == 2:
+    if action == 2:
         print()
         library_answers_using_mode = choose_library_answers_using_mode()
 
@@ -71,12 +71,12 @@ def output_questions(
                 print(f'Вопрос {question_num}: {question}', end='')
                 print(DEFAULT_TEXT_STYLE)
 
-                if work_mode == 2:
+                if action == 2:
                     if library_answers_using_mode == 2:
                         true_answer = None
                     
                     print()
-                    hint_output_mode = choose_hint_output_mode(work_mode)
+                    hint_output_mode = choose_hint_output_mode(action)
 
                     if hint_output_mode == 2:
                         print()
@@ -164,7 +164,7 @@ def output_questions(
 
                 question_num += 1
 
-            if work_mode == 2:
+            if action == 2:
                 questions_estimations_nums = [e.num for e in estimations if e.obj_type == 'question']
 
                 subtheme_general_estimation_num = calc_general_estimation_num(questions_estimations_nums)
@@ -178,7 +178,7 @@ def output_questions(
                 print(f'Итоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}', end='')
                 print(DEFAULT_TEXT_STYLE)
 
-        if work_mode == 2:
+        if action == 2:
             subthemes_estimations_nums = [e.num for e in estimations if e.obj_type == 'subtheme']
 
             theme_general_estimation_num = calc_general_estimation_num(subthemes_estimations_nums)
@@ -195,7 +195,7 @@ def output_questions(
     print()
     print('Вопросы закончились.')
 
-    if work_mode == 2:
+    if action == 2:
         themes_estimations_nums = [e.num for e in estimations if e.obj_type == 'theme']
 
         general_estimation_num = calc_general_estimation_num(themes_estimations_nums)

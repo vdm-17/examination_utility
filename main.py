@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from app.files_parsing import get_questions
-from app.user_choosing import choose_work_mode, choose_output_themes, choose_output_mode
+from app.user_choosing import choose_action, choose_output_themes, choose_output_mode
 from app.output.statistics import output_estimations_stats
 from app.output.questions import output_questions
 
@@ -12,15 +12,12 @@ def main():
     themes = list(questions.keys())
 
     while True:
-        work_mode = choose_work_mode()
+        action = choose_action()
 
-        if work_mode == 4:
+        if action == 4:
             break
 
-        print()
-        print(f'Вы выбрали режим работы под номером {work_mode}.')
-
-        if work_mode == 3:
+        if action == 3:
             print()
             output_estimations_stats()
             print()
@@ -30,15 +27,9 @@ def main():
         output_themes = choose_output_themes(themes)
 
         print()
-        print(f'Вы выбрали для повторения следующие темы: {'; '.join(output_themes)}.')
-
-        print()
         output_mode = choose_output_mode()
 
-        print()
-        print(f'Вы выбрали режим вывода под номером {output_mode}.')
-
-        output_questions(questions, output_themes, work_mode, output_mode)
+        output_questions(questions, output_themes, action, output_mode)
         print()
     
     print()
