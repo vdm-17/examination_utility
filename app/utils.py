@@ -36,7 +36,7 @@ def calc_general_estimation_num(estimations_nums: list[int]):
     return round(sum(estimations_nums) / len(estimations_nums))
 
 
-def choose_estimation_text_style(estimation_num: int):
+def get_estimation_text_style(estimation_num: int):
     if estimation_num == 5:
         return ESTIMATION_FIVE_TEXT_STYLE
     elif estimation_num == 4:

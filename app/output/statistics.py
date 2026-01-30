@@ -6,7 +6,7 @@ from app.utils import (
     DEFAULT_TEXT_STYLE,
     load_user_data, 
     calc_general_estimation_num, 
-    choose_estimation_text_style
+    get_estimation_text_style
 )
 
 
@@ -34,7 +34,7 @@ def output_estimations_stats():
     stat_general_estimations_nums = [e.num for e in stat_estimations if e.obj_type == 'all']
     avg_general_estimation_num = calc_general_estimation_num(stat_general_estimations_nums)
     
-    estimation_text_style = choose_estimation_text_style(avg_general_estimation_num)
+    estimation_text_style = get_estimation_text_style(avg_general_estimation_num)
 
     print(estimation_text_style)
     print(f'Средняя итоговая оценка: {avg_general_estimation_num}', end='')
@@ -53,7 +53,7 @@ def output_estimations_stats():
             [e.num for e in stat_estimations if e.obj_type == 'theme' and e.obj_name == theme]
         avg_theme_general_estimation_num = calc_general_estimation_num(stat_theme_avg_general_estimations_nums)
 
-        estimation_text_style = choose_estimation_text_style(avg_theme_general_estimation_num)
+        estimation_text_style = get_estimation_text_style(avg_theme_general_estimation_num)
 
         print(estimation_text_style)
         print(f'Средняя итоговая оценка в теме "{theme}": {avg_theme_general_estimation_num}', end='')

@@ -12,7 +12,7 @@ from app.user_choosing import (
 from app.utils import (
     DEFAULT_TEXT_STYLE,
     calc_general_estimation_num,
-    choose_estimation_text_style, 
+    get_estimation_text_style, 
     save_user_data
 )
 import random
@@ -140,7 +140,7 @@ def output_questions(
                             print(f'Правильный ответ: {question_estimation.true_answer}', end='')
                             print(DEFAULT_TEXT_STYLE)
 
-                            question_estimation_text_style = choose_estimation_text_style(question_estimation.num)
+                            question_estimation_text_style = get_estimation_text_style(question_estimation.num)
 
                             print(question_estimation_text_style)
                             print(f'Оценка: {question_estimation.num}', end='')
@@ -172,7 +172,7 @@ def output_questions(
 
                 estimations.append(subtheme_general_estimation)
 
-                subtheme_estimation_text_style = choose_estimation_text_style(subtheme_general_estimation_num)
+                subtheme_estimation_text_style = get_estimation_text_style(subtheme_general_estimation_num)
 
                 print(subtheme_estimation_text_style)
                 print(f'Итоговая оценка в подтеме "{subtheme}" темы "{theme}": {subtheme_general_estimation_num}', end='')
@@ -186,7 +186,7 @@ def output_questions(
 
             estimations.append(theme_general_estimation)
 
-            theme_estimation_text_style = choose_estimation_text_style(theme_general_estimation_num)
+            theme_estimation_text_style = get_estimation_text_style(theme_general_estimation_num)
 
             print(theme_estimation_text_style)
             print(f'Итоговая оценка в теме "{theme}": {subtheme_general_estimation_num}', end='')
@@ -203,7 +203,7 @@ def output_questions(
 
         estimations.append(general_estimation)
 
-        general_estimation_text_style = choose_estimation_text_style(general_estimation_num)
+        general_estimation_text_style = get_estimation_text_style(general_estimation_num)
         
         print(general_estimation_text_style)
         print(f'Итоговая оценка: {general_estimation_num}', end='')
