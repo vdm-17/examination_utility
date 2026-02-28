@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+from app.settings import get_app_settings
 from app.files_parsing import get_questions
 from app.user_choosing import choose_action, choose_output_themes, choose_output_mode
 from app.output.statistics import output_estimations_stats
@@ -6,9 +6,9 @@ from app.output.questions import output_questions
 
 
 def main():
-    load_dotenv()
+    app_settings = get_app_settings()
     
-    questions = get_questions()
+    questions = get_questions(app_settings)
     themes = list(questions.keys())
 
     while True:
@@ -29,7 +29,7 @@ def main():
         print()
         output_mode = choose_output_mode()
 
-        output_questions(questions, output_themes, action, output_mode)
+        output_questions(questions, output_themes, action, output_mode, app_settings)
         print()
     
     print()

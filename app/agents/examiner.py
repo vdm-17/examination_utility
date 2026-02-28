@@ -1,6 +1,5 @@
-from os import getenv
+from app.settings import AppSettings
 from app.estimations import QuestionAnswerEstimation
-from app.utils import get_config
 from pydantic import BaseModel, Field
 from agents import Agent, Runner, ModelSettings, WebSearchTool
 from agents.model_settings import Reasoning
@@ -72,12 +71,10 @@ class EstimatingAgentOutputSchema(BaseModel):
 
 
 class ComparingAgent(Agent):
-    def __init__(self, name: str):
-        config = get_config()
-
-        openai_model = config['EXAMINER_AGENTS']['COMPARING_AGENT_OPENAI_MODEL']
-        reasoning_effort = config['EXAMINER_AGENTS']['COMPARING_AGENT_REASONING_EFFORT']
-        verbosity = config['EXAMINER_AGENTS']['COMPARING_AGENT_VERBOSITY']
+    def __init__(self, name: str, app_settings: AppSettings):
+        openai_model = app_settings.comparing_agent.openai_model
+        reasoning_effort = app_settings.comparing_agent.reasoning_effort
+        verbosity = app_settings.comparing_agent.verbosity
 
         super().__init__( 
             name=name,
@@ -120,12 +117,10 @@ class ComparingAgent(Agent):
 
 
 class EstimatingAgent(Agent):
-    def __init__(self, name: str):
-        config = get_config()
-
-        openai_model = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_OPENAI_MODEL']
-        reasoning_effort = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_REASONING_EFFORT']
-        verbosity = config['EXAMINER_AGENTS']['ESTIMATING_AGENT_VERBOSITY']
+    def __init__(self, name: str, app_settings: AppSettings):
+        openai_model = app_settings.estimating_agent.openai_model
+        reasoning_effort = app_settings.estimating_agent.reasoning_effort
+        verbosity = app_settings.estimating_agent.verbosity
 
         super().__init__( 
             name=name,
@@ -179,19 +174,12 @@ class ExaminerAgentRateLimitError(ExaminerAgentException):
 
 
 class ExaminerAgent:
-    def __init__(self):
+    def __init__(self, app_settings: AppSettings):
         self.name = 'Бот-экзаменатор.'
-        self.comparing_agent = ComparingAgent(self.name)
-        self.estimating_agent = EstimatingAgent(self.name)
+        self.comparing_agent = ComparingAgent(self.name, app_settings)
+        self.estimating_agent = EstimatingAgent(self.name, app_settings)
     
-    def get_estimation(self, theme: str, subtheme: str, question: str, user_answer: str, true_answer: str | None = None):
-        app_env = getenv('APP_ENV')
-
-        if app_env == 'development':
-            tracing_disabled = False
-        else:
-            tracing_disabled = True
-        
+    def get_estimation(self, theme: str, subtheme: str, question: str, user_answer: str, true_answer: str | None = None, tracing_disabled = True):
         try:
             if true_answer:
                 return self.comparing_agent.get_estimation(

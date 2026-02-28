@@ -1,5 +1,4 @@
-from os import getenv
-from app.utils import get_config
+from app.settings import AppSettings
 from typing import Literal
 from pydantic import BaseModel, Field
 from agents import Agent, Runner, ModelSettings, WebSearchTool, AgentsException
@@ -40,12 +39,10 @@ class HintingAgentRateLimitError(HintingAgentException):
 
 
 class SimpleHintingAgent(Agent):
-    def __init__(self):
-        config = get_config()
-
-        openai_model = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_OPENAI_MODEL']
-        reasoning_effort = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_REASONING_EFFORT']
-        verbosity = config['HINTING_AGENTS']['SIMPLE_HINTING_AGENT_VERBOSITY']
+    def __init__(self, app_settings: AppSettings):
+        openai_model = app_settings.simple_hinting_agent.openai_model
+        reasoning_effort = app_settings.simple_hinting_agent.reasoning_effort
+        verbosity = app_settings.simple_hinting_agent.verbosity
 
         super().__init__(
             name=HINTING_AGENT_NAME, 
@@ -62,14 +59,7 @@ class SimpleHintingAgent(Agent):
             output_type=str,
         )
     
-    def get_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize, true_answer: str) -> str:
-        app_env = getenv('APP_ENV')
-
-        if app_env == 'development':
-            tracing_disabled = False
-        else:
-            tracing_disabled = True
-        
+    def get_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize, true_answer: str, tracing_disabled: bool) -> str:
         agent_input = f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Размер подсказки: {hint_size}. Правильный ответ: {true_answer}'
 
         try:
@@ -92,12 +82,10 @@ class SmartHintingAgentOutputSchema(BaseModel):
 
 
 class SmartHintingAgent(Agent):
-    def __init__(self):
-        config = get_config()
-
-        openai_model = config['HINTING_AGENTS']['SMART_HINTING_AGENT_OPENAI_MODEL']
-        reasoning_effort = config['HINTING_AGENTS']['SMART_HINTING_AGENT_REASONING_EFFORT']
-        verbosity = config['HINTING_AGENTS']['SMART_HINTING_AGENT_VERBOSITY']
+    def __init__(self, app_settings: AppSettings):
+        openai_model = app_settings.simple_hinting_agent.openai_model
+        reasoning_effort = app_settings.simple_hinting_agent.reasoning_effort
+        verbosity = app_settings.simple_hinting_agent.verbosity
 
         super().__init__(
             name=HINTING_AGENT_NAME, 
@@ -115,14 +103,7 @@ class SmartHintingAgent(Agent):
             output_type=SmartHintingAgentOutputSchema
         )
     
-    def get_answer_with_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize) -> SmartHintingAgentOutputSchema:
-        app_env = getenv('APP_ENV')
-        
-        if app_env == 'development':
-            tracing_disabled = False
-        else:
-            tracing_disabled = True
-        
+    def get_answer_with_hint(self, theme: str, subtheme: str, question: str, hint_size: HintSize, tracing_disabled: bool) -> SmartHintingAgentOutputSchema:
         agent_input = f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Размер подсказки: {hint_size}.'
 
         try:

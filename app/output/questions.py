@@ -1,3 +1,4 @@
+from app.settings import AppSettings
 from app.files_parsing import Questions
 from app.estimations import Estimation, GeneralEstimation, ESTIMATIONS_STATISTICS_DIRNAME
 from app.agents.hinting import SimpleHintingAgent, SmartHintingAgent
@@ -28,15 +29,17 @@ def output_questions(
         questions: Questions, 
         output_themes: list[str],
         action: Action, 
-        output_mode: OutputMode
+        output_mode: OutputMode,
+        app_settings: AppSettings
     ):
     if action == 2:
         print()
         library_answers_using_mode = choose_library_answers_using_mode()
 
-        simple_hinting_agent = SimpleHintingAgent()
-        smart_hinting_agent = SmartHintingAgent()
-        examiner_agent = ExaminerAgent()
+        simple_hinting_agent = SimpleHintingAgent(app_settings)
+        smart_hinting_agent = SmartHintingAgent(app_settings)
+        examiner_agent = ExaminerAgent(app_settings)
+        tracing_disabled = app_settings.app_env != 'development'
 
         estimations: list[Estimation] = []
 
@@ -90,12 +93,12 @@ def output_questions(
                             hint_size = 'крупная'
                     
                         if true_answer == None:
-                            hinting_agent_output = smart_hinting_agent.get_answer_with_hint(theme, subtheme, question, hint_size)
+                            hinting_agent_output = smart_hinting_agent.get_answer_with_hint(theme, subtheme, question, hint_size, tracing_disabled)
 
                             true_answer = hinting_agent_output.true_answer
                             hint = hinting_agent_output.hint
                         else:
-                            hint = simple_hinting_agent.get_hint(theme, subtheme, question, hint_size, true_answer)
+                            hint = simple_hinting_agent.get_hint(theme, subtheme, question, hint_size, true_answer, tracing_disabled)
                     
                         print(f'{hint_size[0].upper()}{hint_size[1:]} подсказка: {hint}')
                     
@@ -110,7 +113,7 @@ def output_questions(
 
                     while True:
                         try:
-                            question_estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer)
+                            question_estimation = examiner_agent.get_estimation(theme, subtheme, question, user_answer, true_answer, tracing_disabled)
                         except ExaminerAgentRateLimitError:
                             if not is_rate_limit_error_message_printed:
                                 print()

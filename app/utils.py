@@ -1,4 +1,3 @@
-import configparser
 import re
 import pathlib
 import pickle
@@ -12,13 +11,6 @@ ESTIMATION_ONE_TEXT_STYLE = '\033[31m'
 DEFAULT_TEXT_STYLE = '\033[0m'
 
 PROGRAM_DATA_DIRNAME = '.examination_utility'
-
-
-def get_config():
-    config = configparser.ConfigParser()
-    config.read('config.ini', 'utf-8')
-
-    return config
 
 
 def validate_input_nums(s: str, x: int) -> bool:
