@@ -38,13 +38,13 @@ class HintingAgentRateLimitError(HintingAgentException):
         super().__init__(message)
 
 
-class SimpleHintingAgent(Agent):
+class SimpleHintingAgent:
     def __init__(self, app_settings: AppSettings):
         openai_model = app_settings.simple_hinting_agent.openai_model
         reasoning_effort = app_settings.simple_hinting_agent.reasoning_effort
         verbosity = app_settings.simple_hinting_agent.verbosity
 
-        super().__init__(
+        self.openai_agent = Agent(
             name=HINTING_AGENT_NAME, 
             instructions=HINTING_AGENT_INSTRUCTIONS.format(
                 additional_instructions=SIMPLE_HINTING_AGENT_ADDITIONAL_INSTRUCTIONS,
@@ -63,7 +63,7 @@ class SimpleHintingAgent(Agent):
         agent_input = f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Размер подсказки: {hint_size}. Правильный ответ: {true_answer}'
 
         try:
-            response = asyncio.run(Runner.run(self, agent_input, run_config=RunConfig(tracing_disabled=tracing_disabled)))
+            response = asyncio.run(Runner.run(self.openai_agent, agent_input, run_config=RunConfig(tracing_disabled=tracing_disabled)))
         except RateLimitError as e:
             raise HintingAgentRateLimitError(f'Hinting agent rate limit error: {e}') from e
         except AgentsException as e:
@@ -81,13 +81,13 @@ class SmartHintingAgentOutputSchema(BaseModel):
     )
 
 
-class SmartHintingAgent(Agent):
+class SmartHintingAgent:
     def __init__(self, app_settings: AppSettings):
         openai_model = app_settings.simple_hinting_agent.openai_model
         reasoning_effort = app_settings.simple_hinting_agent.reasoning_effort
         verbosity = app_settings.simple_hinting_agent.verbosity
 
-        super().__init__(
+        self.openai_agent = Agent(
             name=HINTING_AGENT_NAME, 
             instructions=HINTING_AGENT_INSTRUCTIONS.format(
                 additional_instructions = SMART_HINTING_AGENT_ADDITIONAL_INSTRUCTIONS,
@@ -107,7 +107,7 @@ class SmartHintingAgent(Agent):
         agent_input = f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Размер подсказки: {hint_size}.'
 
         try:
-            response = asyncio.run(Runner.run(self, agent_input, run_config=RunConfig(tracing_disabled=tracing_disabled)))
+            response = asyncio.run(Runner.run(self.openai_agent, agent_input, run_config=RunConfig(tracing_disabled=tracing_disabled)))
         except RateLimitError as e:
             raise HintingAgentRateLimitError(f'Hinting agent rate limit error: {e}') from e
         except AgentsException as e:

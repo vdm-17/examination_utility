@@ -70,13 +70,13 @@ class EstimatingAgentOutputSchema(BaseModel):
     )
 
 
-class ComparingAgent(Agent):
+class ComparingAgent:
     def __init__(self, name: str, app_settings: AppSettings):
         openai_model = app_settings.comparing_agent.openai_model
         reasoning_effort = app_settings.comparing_agent.reasoning_effort
         verbosity = app_settings.comparing_agent.verbosity
 
-        super().__init__( 
+        self.openai_agent = Agent( 
             name=name,
             instructions=COMPARING_AGENT_INSTRUCTIONS,
             model=openai_model,
@@ -97,7 +97,7 @@ class ComparingAgent(Agent):
             tracing_disabled: bool
         ):
         response = asyncio.run(
-            Runner.run(self,
+            Runner.run(self.openai_agent,
                 input=f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Правильный ответ: {true_answer}. Ответ пользователя: {user_answer}.',
                 run_config=RunConfig(tracing_disabled=tracing_disabled)
             )
@@ -116,13 +116,13 @@ class ComparingAgent(Agent):
         )
 
 
-class EstimatingAgent(Agent):
+class EstimatingAgent:
     def __init__(self, name: str, app_settings: AppSettings):
         openai_model = app_settings.estimating_agent.openai_model
         reasoning_effort = app_settings.estimating_agent.reasoning_effort
         verbosity = app_settings.estimating_agent.verbosity
 
-        super().__init__( 
+        self.openai_agent = Agent( 
             name=name,
             instructions=ESTIMATING_AGENT_INSTRUCTIONS,
             model=openai_model,
@@ -143,7 +143,7 @@ class EstimatingAgent(Agent):
         tracing_disabled: bool
     ):
         response = asyncio.run(
-            Runner.run(self,
+            Runner.run(self.openai_agent,
                 input=f'Тема: {theme}. Подтема: {subtheme}. Вопрос: {question}. Ответ пользователя: {user_answer}.',
                 run_config=RunConfig(tracing_disabled=tracing_disabled)
             )
